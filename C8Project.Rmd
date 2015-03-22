@@ -1,0 +1,119 @@
+---
+title: "Predicting Human Activity Classe"
+author: "Dozie Ezigbalike"
+date: "Sunday, March 22, 2015"
+output: html_document
+---
+```{r echo=FALSE, message=FALSE}
+setwd("C:/Users/Dozie/Box Sync/Course 8/Project")
+library(caret)
+library(rattle)
+```
+
+
+## Data Sets
+* URL of training dataset = https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+* URL of testing dataset = https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+* download datasets; then read them into data frames:
+
+```{r}
+training <- read.csv("pml-training.csv", header=T)
+testing <- read.csv("pml-testing.csv", header=T)
+```
+
+Examine the dataset and variable names:
+```{r eval=FALSE}
+dim(training); dim(testing)
+names(training)
+table(training$classe)
+table(training$cvtd_timestamp)
+```
+
+## Prediction Variables
+
+Variables that are relevant to determining activies are those relating to accelerometer readings and orientation. These are the variables that end in -x, -y, -z and those that start with roll-, pitch-, and yaw-. Also the activities are clustered by time, so we are interested in the timestamp variable. Finally the classification variable classe.
+
+```{r}
+allVariables <- names(training)
+predictionVariables <- grep("^cvtd_|^roll_|^pitch_|^yaw_|_x$|_y$|_z$", allVariables)
+training2 <- training[,c(predictionVariables,which(allVariables == "classe"))]
+```
+
+## Validation Data
+
+Save some of the training data for validation testing. The data is a timeseries dataset. Therefore it is not suitable for random sampling to create training and validation datasets; instead data must be used in chunks. Use the combination of timestamp and classe for defining folds.
+```{r}
+classe_time <- paste(training2$classe, training2$cvtd_timestamp)
+set.seed(10)
+flds <- createFolds(classe_time, k=10)
+```
+
+Set 70% as training data and 30% as test
+
+```{r}
+traindata <- training2[flds[[1]],]
+for (i in 2:7){
+    traindata <- rbind(traindata, training2[flds[[i]],])
+}
+vtestdata <- training2[flds[[8]],]
+for (i in 9:10){
+    vtestdata <- rbind(vtestdata, training2[flds[[i]],])
+}
+```
+
+## CART Model
+
+Fit CART model and test. Start with a  simple model: "rpart" method. Specify k-fold cross-validation by using the "repeatedcv" method in the **trainControl** function. 
+
+```{r}
+ctrl <- trainControl(method = "repeatedcv", repeats=3)
+rpartFit <- train(classe ~ ., method = "rpart", trControl=ctrl, data=traindata)
+rpartPrd <- predict(rpartFit, vtestdata)
+cm.rpart <- confusionMatrix(rpartPrd, vtestdata$classe)
+
+print(rpartFit)
+print(rpartFit$finalModel)
+print (cm.rpart)
+```
+
+## Initial Result
+
+We would like an overall accuracy of 80%. The obtained accuracy of `r cm.rpart$overall['Accuracy']` is therefore low. Also the confusion matrix shows that the 'B' class was often misclassified, as reflected in the low sensitivity for the B class.
+
+## Another Model
+
+Try the random forest with the same training and validation data:
+
+```{r}
+set.seed(10)
+rfFit <- train(classe ~ ., method = "rf", trControl=ctrl, data=traindata)
+rfPrd <- predict(rfFit, vtestdata)
+cm.rf <- confusionMatrix(rfPrd, vtestdata$classe)
+
+print(rfFit)
+print(rfFit$finalModel)
+print (cm.rf)
+```
+
+The overall accuracy is hgh at `r cm.rf$overall['Accuracy']`, the sensitivity values are high, and the misclassified values are few.
+
+## Final Classification
+
+Therefore use the random forest model fit to predict with the supplied testing data:
+
+```{r} 
+realtestdata <- testing[, predictionVariables]
+predictedClasses <- predict(rfFit, realtestdata)
+print (predictedClasses)
+```
+
+## Final Results
+
+Append these predicted classes to the real test data. Then display the username, time stamp and predicted class:
+```{r}
+testing$classe <- predictedClasses
+clean1 <- testing[, c("user_name", "cvtd_timestamp", "classe")]
+print(clean1)
+```
+
+
