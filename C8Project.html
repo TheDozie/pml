@@ -128,10 +128,10 @@ print(rpartFit)</code></pre>
 ## 
 ## Resampling results across tuning parameters:
 ## 
-##   cp    Accuracy  Kappa  Accuracy SD  Kappa SD
-##   0.04  0.5       0.38   0.06         0.09    
-##   0.05  0.4       0.24   0.08         0.13    
-##   0.12  0.3       0.06   0.04         0.06    
+##   cp       Accuracy  Kappa    Accuracy SD  Kappa SD
+##   0.03979  0.5225    0.37894  0.05915      0.09340 
+##   0.04623  0.4368    0.23943  0.08016      0.13003 
+##   0.11713  0.3218    0.05711  0.04062      0.06218 
 ## 
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was cp = 0.03979.</code></pre>
@@ -187,9 +187,9 @@ print(rpartFit)</code></pre>
 ## Detection Prevalence    0.456   0.1315    0.322    0.000   0.0900
 ## Balanced Accuracy       0.817   0.5886    0.786    0.500   0.7291</code></pre>
 </div>
-<div id="result" class="section level2">
-<h2>Result</h2>
-<p>We would like an overall accuracy of 80%. The obtained accuracy of <code>cm.rpart$overall['Accuracy']</code> is therefore low. Also the confusion matrix shows that the ‘B’ class was often misclassified, as reflected in the low sensitivity for the B class.</p>
+<div id="initial-result" class="section level2">
+<h2>Initial Result</h2>
+<p>We would like an overall accuracy of 80%. The obtained accuracy of 0.5355 is therefore low. Also the confusion matrix shows that the ‘B’ class was often misclassified, as reflected in the low sensitivity for the B class.</p>
 </div>
 <div id="another-model" class="section level2">
 <h2>Another Model</h2>
@@ -216,10 +216,10 @@ print(rfFit)</code></pre>
 ## 
 ## Resampling results across tuning parameters:
 ## 
-##   mtry  Accuracy  Kappa  Accuracy SD  Kappa SD
-##    2    1         1      0.004        0.005   
-##   34    1         1      0.002        0.002   
-##   67    1         1      0.003        0.003   
+##   mtry  Accuracy  Kappa   Accuracy SD  Kappa SD
+##    2    0.9819    0.9772  0.003908     0.004948
+##   34    0.9940    0.9924  0.001912     0.002418
+##   67    0.9916    0.9893  0.002647     0.003349
 ## 
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was mtry = 34.</code></pre>
@@ -271,7 +271,7 @@ print(rfFit)</code></pre>
 ## Detection Rate          0.284    0.193    0.174    0.163    0.183
 ## Detection Prevalence    0.284    0.194    0.175    0.164    0.183
 ## Balanced Accuracy       0.999    0.998    0.997    0.997    0.998</code></pre>
-<p>The overall accuracy is hgh at <code>cm.rf$overall['Accuracy']</code>, the sensitivity values are high, and the misclassified values are few.</p>
+<p>The overall accuracy is hgh at 0.9969, the sensitivity values are high, and the misclassified values are few.</p>
 </div>
 <div id="final-classification" class="section level2">
 <h2>Final Classification</h2>
